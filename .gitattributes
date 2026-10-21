@@ -1,0 +1,4 @@
+# 统一换行符，避免 Windows 与 CI 之间出现行尾 diff 噪音
+* text=auto eol=lf
+*.png binary
+*.jpg binary
