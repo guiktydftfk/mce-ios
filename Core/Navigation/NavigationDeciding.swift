@@ -20,7 +20,7 @@ struct SiteNavigationDecider: WebPage.NavigationDeciding {
 
         guard SiteScope.isInternal(url) else {
             // 站外链接：用系统浏览器打开，WebView 内取消加载
-            UIApplication.shared.open(url)
+            await UIApplication.shared.open(url)
             return .cancel
         }
         return .allow
