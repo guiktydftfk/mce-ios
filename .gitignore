@@ -1,0 +1,10 @@
+# 构建产物
+build/
+DerivedData/
+
+# Xcode 工程由 XcodeGen 生成，不入库
+*.xcodeproj
+
+# macOS / Xcode 杂物
+.DS_Store
+xcuserdata/

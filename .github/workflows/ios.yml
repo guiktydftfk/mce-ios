@@ -1,0 +1,58 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Show available simulators (debug aid)
+        run: xcrun simctl list devices available | head -40
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project MCE.xcodeproj \
+            -scheme MCE \
+            -destination 'platform=iOS Simulator,OS=latest' \
+            CODE_SIGNING_ALLOWED=NO | xcbeautify
+
+      - name: Build unsigned device app
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project MCE.xcodeproj \
+            -scheme MCE \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO | xcbeautify
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p build/ipa/Payload
+          cp -R build/Build/Products/Release-iphoneos/MCE.app build/ipa/Payload/
+          cd build/ipa && zip -qry ../MCE-unsigned.ipa Payload
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: MCE-unsigned-ipa
+          path: build/MCE-unsigned.ipa
