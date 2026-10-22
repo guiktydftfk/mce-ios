@@ -48,9 +48,14 @@ jobs:
 
       - name: Package unsigned IPA
         run: |
+          set -e
+          APP_PATH=$(find build -type d -name 'MCE.app' -print -quit)
+          echo "Found app at: $APP_PATH"
+          [ -n "$APP_PATH" ] || { echo '::error::MCE.app not found in build/'; exit 1; }
           mkdir -p build/ipa/Payload
-          cp -R build/Build/Products/Release-iphoneos/MCE.app build/ipa/Payload/
+          cp -R "$APP_PATH" build/ipa/Payload/
           cd build/ipa && zip -qry ../MCE-unsigned.ipa Payload
+          ls -lh ../MCE-unsigned.ipa
 
       - name: Upload unsigned IPA
         uses: actions/upload-artifact@v4
