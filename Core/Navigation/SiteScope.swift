@@ -22,14 +22,14 @@ enum SiteScope {
     }
 
     /// 是否 Discuz 站内脚本入口，供后续解析层复用。
+    /// 注意：URLComponents.path 带前导斜杠（"/forum.php"），
+    /// 因此用 lastPathComponent 取末段再比对。
     static func isForumScriptPath(_ url: URL) -> Bool {
-        guard isInternal(url),
-              let path = URLComponents(url: url, resolvingAgainstBaseURL: false)?
-                  .path.lowercased()
-        else { return false }
+        guard isInternal(url) else { return false }
+        let script = url.lastPathComponent.lowercased()
         return [
             "forum.php", "portal.php", "home.php", "misc.php",
             "plugin.php", "member.php", "search.php",
-        ].contains(path)
+        ].contains(script)
     }
 }
